@@ -1,0 +1,6 @@
+
+AllowUsers sshonly
+AllowGroups sshonly
+
+
+PermitRootLogin no
