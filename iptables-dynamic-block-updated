@@ -1,0 +1,28 @@
+#!/bin/sh
+
+modprobe  ipt_recent ip_list_tot=10000 ip_pkt_list_tot=5
+
+iptables -F
+iptables -X
+
+iptables -N BLACKLIST
+iptables -N SSH
+
+# A server that sends HITS number of requests within TIME seconds will be blocked
+HITS=5
+TIME=10
+
+
+iptables -A INPUT -m state --state INVALID -j DROP
+iptables -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+iptables -A INPUT -m tcp -p tcp -m multiport --dports 22,2222 -m state --state NEW -j SSH
+
+# Logging rule
+iptables -A SSH -j LOG --log-level 4
+
+# Blocking rule
+iptables -A SSH -m recent --update --seconds $TIME --hitcount $HITS --name BLACKLIST -j DROP
+iptables -A SSH -m recent --set --name BLACKLIST -j ACCEPT
+
+

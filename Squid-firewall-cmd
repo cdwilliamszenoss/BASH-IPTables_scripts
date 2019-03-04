@@ -1,0 +1,61 @@
+
+
+
+******************************************************
+SET SQUID transparent redirect.
+
+# Edit squit config: Use intercept. Denied pages when using transparent.
+http_port 3128 intercept
+
+******************************************************
+ACTIVE FIREWALL RULES
+ 
+# firewall-cmd --zone=external --add-masquerade --permanent 
+
+# Use for SQUID redirect. Do not add port 443
+firewall-cmd --direct --permanent --add-rule ipv4 nat PREROUTING 0 -i enp3s0f2 -p tcp --dport 80 -j DNAT --to 70.112.141.90:3128
+firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -s 192.168.2.0/24 -d 70.112.141.90 -i enp3s0f2 -o enp3s0f2 -p tcp --dport 3128 -j ACCEPT
+
+# Set MSS
+firewall-cmd --direct --permanent --add-rule ipv4 filter FORWARD 0 -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
+
+# Block offending IPs
+
+firewall-cmd --direct --permanent --add-chain ipv4 filter BLACKLIST
+firewall-cmd --direct --permanent --add-chain ipv4 filter SSH
+
+firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT_direct 0 -m tcp -p tcp --dport 22 -m state --state NEW -j SSH
+firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 1 -m recent --update --seconds 300 --hitcount 5 --name BLACKLIST -j DROP
+firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 2 -m recent --set --name BLACKLIST -j ACCEPT
+
+
+******************************************************
+
+# COMMANDS:
+
+Use to add direct rules to firewall-cmd
+usage: --direct --add-rule { ipv4 | ipv6 | eb } <table> <chain> <priority> <args>
+
+# Get DIRECT Rules
+firewall-cmd --direct --get-all-rules
+
+# Remove Rules. 
+firewall-cmd --direct --permanent --remove-rule ipv4 nat PREROUTING 0 -i enp3s0f2 -p tcp --dport 80 -j DNAT --to 70.112.141.90:3128
+ 
+
+
+
+******************************************************
+# IPtable rules
+
+iptables -t nat -I PREROUTING -i enp3s0f2 -p tcp --dport 80 -j DNAT --to 70.112.141.90:3128
+iptables -I FORWARD -s 192.168.2.0/24 -d 70.112.141.90 -i enp3s0f2 -o enp3s0f2 -p tcp --dport 3128 -j ACCEPT
+
+iptables -I FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmtu
+
+# Masquerading:
+
+iptables -t nat -A POSTROUTING -o enp3s0f2 -j MASQUERADE
+iptables -t nat -I POSTROUTING -o enp3s0f2 -s 192.168.2.0/24 -j SNAT --to 70.112.141.90
+
+******************************************************
