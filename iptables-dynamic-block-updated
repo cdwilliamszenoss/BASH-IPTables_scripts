@@ -1,7 +1,7 @@
 #!/bin/sh
 
 modprobe  ipt_recent ip_list_tot=10000 ip_pkt_list_tot=5
-# View ip_list_tot value
+# View xt_recent values
 # head /sys/module/xt_recent/parameters/*
 
 iptables -F
