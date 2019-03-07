@@ -11,13 +11,11 @@ options xt_recent ip_list_tot=20000 ip_pkt_list_tot=5
 # View xt_recent values
 # head /sys/module/xt_recent/parameters/*
 
-
 ------------------------------------------------
 # Remove a single blocked IP from list
 echo -192.168.2.7 >/proc/net/xt_recent/BLACKLIST
 
 # Remove all blocked IP addresses from list
-
 echo / >/proc/net/xt_recent/BLACKLIST
 
 
