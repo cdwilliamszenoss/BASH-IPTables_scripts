@@ -1,8 +1,21 @@
+
+# Service needed to load module on boot
+systemctl restart systemd-modules-load
+ 
+# Create a xt_recent.conf file in the /etc/modules-load.d directory and add module
+xt_recent
+
+# To load module options create a xt_recent.conf file in the /etc/modprobe.d directory and add options
+options xt_recent ip_list_tot=20000 ip_pkt_list_tot=5
+
+# View xt_recent values
+# head /sys/module/xt_recent/parameters/*
+
+-------------------------------------------------
 #!/bin/sh
 
 modprobe  ipt_recent ip_list_tot=10000 ip_pkt_list_tot=5
-# View xt_recent values
-# head /sys/module/xt_recent/parameters/*
+
 
 iptables -F
 iptables -X
