@@ -29,7 +29,7 @@ firewall-cmd --direct --permanent --add-chain ipv4 filter SSH
 # Bypass SSH chain for requests comming from the internal IP and internal IFace. 
 firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT_direct 0 ! -s 192.168.2.0/24 ! -i enp3s0f2:0 -m tcp -p tcp --dport 22 -m state --state NEW -j SSH
 
-# Update in comming request with timestamp
+# Process SSH requests in the SSH chain and up with timestamp
 firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 1 -m recent --update --seconds 300 --hitcount 5 --name BLACKLIST -j DROP
 firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 2 -m recent --set --name BLACKLIST -j ACCEPT
 
