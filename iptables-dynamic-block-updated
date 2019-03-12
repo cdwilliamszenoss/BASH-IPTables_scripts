@@ -18,8 +18,22 @@ echo -192.168.2.7 >/proc/net/xt_recent/BLACKLIST
 # Remove all blocked IP addresses from list
 echo / >/proc/net/xt_recent/BLACKLIST
 
+-------------------------------------------------
+Firewalld - version
+
+modprobe  ipt_recent ip_list_tot=10000 ip_pkt_list_tot=5
+
+
+firewall-cmd --direct --permanent --add-chain ipv4 filter BLACKLIST
+firewall-cmd --direct --permanent --add-chain ipv4 filter SSH
+
+firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT_direct 0 -m tcp -p tcp --dport 22 -m state --state NEW -j SSH
+firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 1 -m recent --update --seconds 300 --hitcount 5 --name BLACKLIST -j DROP
+firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 2 -m recent --set --name BLACKLIST -j ACCEPT
 
 -------------------------------------------------
+IPTables - version
+
 #!/bin/sh
 
 modprobe  ipt_recent ip_list_tot=10000 ip_pkt_list_tot=5
