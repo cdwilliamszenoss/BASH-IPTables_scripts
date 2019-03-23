@@ -65,4 +65,5 @@ iptables -A SSH -m recent --set --name BLACKLIST -j ACCEPT
 ----------------------------------------------
 
 # To show block IPs and list count:
-cat /proc/net/xt_recent/BLACKLIST | awk 'match($1,/([0-9]{1,3}\.){2}.*/){print substr($0,RSTART,RLENGTH), $7}' | sort -k 2 -n
+curl -Lk -O https://raw.githubusercontent.com/cdwilliamszenoss/iptables_xt_recent_parser/master/iptables_xt_recent_parser/iptables_xt_recent_parser.py
+
