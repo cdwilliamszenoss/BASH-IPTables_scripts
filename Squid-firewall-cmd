@@ -1,6 +1,4 @@
 
-
-
 ******************************************************
 SET SQUID transparent redirect.
 
@@ -33,9 +31,7 @@ firewall-cmd --direct --permanent --add-rule ipv4 filter INPUT_direct 0 ! -s 192
 firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 1 -m recent --update --seconds 300 --hitcount 5 --name BLACKLIST -j DROP
 firewall-cmd --direct --permanent --add-rule ipv4 filter SSH 2 -m recent --set --name BLACKLIST -j ACCEPT
 
-
 ******************************************************
-
 # COMMANDS:
 
 Use to add direct rules to firewall-cmd
@@ -47,9 +43,6 @@ firewall-cmd --direct --get-all-rules
 # Remove Rules. 
 firewall-cmd --direct --permanent --remove-rule ipv4 nat PREROUTING 0 -i enp3s0f2 -p tcp --dport 80 -j DNAT --to 70.112.141.90:3128
  
-
-
-
 ******************************************************
 # IPtable rules
 
@@ -62,5 +55,15 @@ iptables -I FORWARD -p tcp --tcp-flags SYN,RST SYN -j TCPMSS  --clamp-mss-to-pmt
 
 iptables -t nat -A POSTROUTING -o enp3s0f2 -j MASQUERADE
 iptables -t nat -I POSTROUTING -o enp3s0f2 -s 192.168.2.0/24 -j SNAT --to 70.112.141.90
-
 ******************************************************
+
+# Show Blocked IPs
+
+# Use this Python script to show block IPs and the connection count
+curl -Lk -O https://raw.githubusercontent.com/cdwilliamszenoss/iptables_xt_recent_parser/master/iptables_xt_recent_parser/iptables_xt_recent_parser.py
+
+# Use this BASH script to show block IPs and the connection count
+cat /proc/net/xt_recent/BLACKLIST | awk '{match($1,/([0-9]{1,3}\.){2}.*/);printf "%s %d\n", substr($0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf "IP: %-15s  %d connections\n", $1,$2}' 
+
+# Set in .bashrc as alias
+alias bl="cat /proc/net/xt_recent/BLACKLIST | awk '{match(\$1,/([0-9]{1,3}\.){2}.*/);printf \"%s %d\n\", substr(\$0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf \"IP: %-15s  %d connections\n\", \$1,\$2}'"
