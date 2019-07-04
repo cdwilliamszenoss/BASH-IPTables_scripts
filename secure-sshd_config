@@ -1,7 +1,0 @@
-
-AllowUsers sshonly
-AllowGroups sshonly
-
-MaxAuthTries 3
-PermitRootLogin no
-
