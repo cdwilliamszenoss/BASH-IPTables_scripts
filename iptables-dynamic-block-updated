@@ -101,7 +101,7 @@ sys	2m33.380s
 
 ------------------------------
 
-
+# BASH script to show block IPs and number of attempted connections
 
 - Run in CLI
 cat /proc/net/xt_recent/BLACKLIST | awk '{match($1,/([0-9]{1,3}\.){2}.*/);printf "%s %d\n", substr($0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf "IP: %-15s  %d connections\n", $1,$2}' 
@@ -109,9 +109,31 @@ cat /proc/net/xt_recent/BLACKLIST | awk '{match($1,/([0-9]{1,3}\.){2}.*/);printf
 - Alias in .bashrc
 alias bl="cat /proc/net/xt_recent/BLACKLIST | awk '{match(\$1,/([0-9]{1,3}\.){2}.*/);printf \"%s %d\n\", substr(\$0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf \"IP: %-15s  %d connections\n\", \$1,\$2}'"
 
+IP: 185.173.35.57    1 connections
+IP: 185.175.93.14    1 connections
+IP: 198.108.67.110   1 connections
+IP: 208.100.26.241   1 connections
+IP: 213.232.192.86   1 connections
+IP: 5.189.188.111    1 connections
+IP: 80.82.65.74      1 connections
+IP: 81.22.45.148     1 connections
+IP: 88.214.26.74     1 connections
+IP: 91.134.185.88    1 connections
+IP: 92.63.194.69     1 connections
+IP: 138.68.216.45    2 connections
+IP: 192.168.86.35    2 connections
+IP: 209.17.97.2      2 connections
+IP: 198.108.67.48    3 connections
+IP: 51.15.17.95      3 connections
+IP: 89.248.174.193   3 connections
+IP: 163.172.106.112  4 connections
+IP: 80.82.77.33      5 connections
+
+
+
 ****
 
-# Count the IPs by number of connects
+# BASH script to show blocked connections by count.
 
 - Run in CLI
 bl| awk '{print $3}'|sort |uniq -c |sort -k 2 | awk '{printf "IP Count:%-15d Block Connections: %d\n", $1, $2}'
@@ -119,5 +141,11 @@ bl| awk '{print $3}'|sort |uniq -c |sort -k 2 | awk '{printf "IP Count:%-15d Blo
 - Alias in .bashrc
 alias blc="bl| awk '{print \$3}'|sort |uniq -c |sort -k 2 | awk '{printf \"IP Count:%-15d Block Connections: %d\n\", \$1, \$2}'"
 
+
+IP Count:11              Block Connections: 1
+IP Count:3               Block Connections: 2
+IP Count:3               Block Connections: 3
+IP Count:1               Block Connections: 4
+IP Count:1               Block Connections: 5
 
 
