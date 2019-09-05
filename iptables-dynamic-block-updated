@@ -64,34 +64,22 @@ iptables -A SSH -m recent --set --name BLACKLIST -j ACCEPT
 
 ----------------------------------------------
 
-# Both scripts peform the same task.
-
+# Forked from peppelinux/iptables_xt_recent_parser
 # Use this Python script to show block IPs, last connect time and the connection count
+
 curl -Lk -O https://raw.githubusercontent.com/cdwilliamszenoss/iptables_xt_recent_parser/master/iptables_xt_recent_parser/iptables_xt_recent_parser.py
 
-# Same output using BASH
+# Execute using:
+
+python iptables_xt_recent_parser.py -txt|wc -l
+
+
+# Same output using BASH version 
+
 awk '{ cmd="date +%Y-%m-%d" "%H:%M:%S -d@$(($(date +'%s')-($(grep -m1 -E '^jiffies' /proc/timer_list |cut -d\" \" -f2)-" $5 ")/1000))|head -n1"; cmd | getline result;close(cmd); match($1,/([0-9]{1,3}\.){2}.*/); printf "IP: %-15s  last seen: %s after %d connections\n", substr($0,RSTART,RLENGTH),result,(NF-8+1)}' /proc/net/xt_recent/BLACKLIST
 
 ------------------------------
-# BASH script responsive without interpreting timestamp. 
-# Show block IPs and connection count only
-
-- Run in CLI
-cat /proc/net/xt_recent/BLACKLIST | awk '{match($1,/([0-9]{1,3}\.){2}.*/);printf "%s %d\n", substr($0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf "IP: %-15s  %d connections\n", $1,$2}' 
-
-- Alias in .bashrc
-alias bl="cat /proc/net/xt_recent/BLACKLIST | awk '{match(\$1,/([0-9]{1,3}\.){2}.*/);printf \"%s %d\n\", substr(\$0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf \"IP: %-15s  %d connections\n\", \$1,\$2}'"
-
-****
-
-# Count the IPs by number of connects
-
-- Run in CLI
-bl| awk '{print $3}'|sort |uniq -c |sort -k 2 | awk '{printf "IP Count:%-15d Block Connections: %d\n", $1, $2}'
-
-- Alias in .bashrc
-alias blc="bl| awk '{print \$3}'|sort |uniq -c |sort -k 2 | awk '{printf \"IP Count:%-15d Block Connections: %d\n\", \$1, \$2}'"
-
+# BASH script very slow when interpreting timestamp on system. 
 -----------------------------
 
 # Performance comparison
@@ -112,4 +100,24 @@ user	0m35.378s
 sys	2m33.380s
 
 ------------------------------
+
+
+
+- Run in CLI
+cat /proc/net/xt_recent/BLACKLIST | awk '{match($1,/([0-9]{1,3}\.){2}.*/);printf "%s %d\n", substr($0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf "IP: %-15s  %d connections\n", $1,$2}' 
+
+- Alias in .bashrc
+alias bl="cat /proc/net/xt_recent/BLACKLIST | awk '{match(\$1,/([0-9]{1,3}\.){2}.*/);printf \"%s %d\n\", substr(\$0,RSTART,RLENGTH), (NF-8+1)}' | sort -k 2 | awk '{printf \"IP: %-15s  %d connections\n\", \$1,\$2}'"
+
+****
+
+# Count the IPs by number of connects
+
+- Run in CLI
+bl| awk '{print $3}'|sort |uniq -c |sort -k 2 | awk '{printf "IP Count:%-15d Block Connections: %d\n", $1, $2}'
+
+- Alias in .bashrc
+alias blc="bl| awk '{print \$3}'|sort |uniq -c |sort -k 2 | awk '{printf \"IP Count:%-15d Block Connections: %d\n\", \$1, \$2}'"
+
+
 
